@@ -19,9 +19,9 @@ struct Args {
     /// Optional string separator to use between words.
     #[arg(short = 's', long)]
     word_separator: Option<String>,
-    /// Optional wordlist to use.
-    #[arg(short, long)]
-    wordlist: Option<PathBuf>,
+    /// Optional path to wordlist to use.
+    #[arg(short, long, num_args=1..)]
+    wordlist: Option<Vec<PathBuf>>,
     /// Additional information about the generated passphrase.
     #[arg(short, long, default_value = "false")]
     verbose: bool,
@@ -32,7 +32,16 @@ struct PwOptions {
     word_separator: String,
 }
 
-fn read_worldlist(path: PathBuf) -> Vec<String> {
+fn read_wordlists(paths: Vec<PathBuf>) -> Vec<String> {
+    let mut words = vec![];
+    for path in paths {
+        words.append(&mut read_worldlist(&path));
+    }
+
+    words
+}
+
+fn read_worldlist(path: &PathBuf) -> Vec<String> {
     let contents = fs::read_to_string(&path).expect("should have been able to read file");
     let res: Vec<String> = contents.split("\n").map(|s| s.to_string()).collect();
 
@@ -92,16 +101,16 @@ fn main() {
     let args = Args::parse();
 
     let options = get_pw_options(&args);
-    let wordlist_path = match args.wordlist {
-        Some(path) => path,
-        None => Path::new(DEFAULT_WORDLIST).to_path_buf(),
+    let wordlist_paths = match args.wordlist {
+        Some(paths) => paths,
+        None => vec![Path::new(DEFAULT_WORDLIST).to_path_buf()],
     };
 
-    let wordlist = read_worldlist(wordlist_path);
-    let pass = generate_passphrase(&wordlist, &options);
+    let wordlists = read_wordlists(wordlist_paths);
+    let pass = generate_passphrase(&wordlists, &options);
 
     if args.verbose {
-        let entropy = calculate_entropy(options.count, wordlist.len());
+        let entropy = calculate_entropy(options.count, wordlists.len());
         println!("@ entropy: {entropy:.2} bits");
         println!("pass: {pass}");
     } else {
