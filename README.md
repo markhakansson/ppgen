@@ -18,15 +18,15 @@ ppgen -c 5 -w /usr/share/dict/words
 
 Generate a 5 word long random passphrase with multiple wordlists:
 ```sh
-ppgen -c 5 -w path/to/wordlists/*
+ppgen -c 5 -w path/to/wordlists/* # your shell needs to support wildcards
 ```
 
 ### Wordlists
 
-By default, the default wordlist on the system is used. To increase the passphrase entropy, it's
-recommended to use other or additional wordlists.
-
-There are many good wordlists for diceware passphrases that can be used https://theworld.com/~reinhold/diceware.html .
+By default, the default wordlist on the system is used. To increase the
+passphrase entropy, it's recommended to use other or additional wordlists. There
+are many good wordlists for diceware passphrases that can be downloaded from
+sources at: https://theworld.com/~reinhold/diceware.html .
 
 ## License
 
